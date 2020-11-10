@@ -1,0 +1,97 @@
+________________________
+Cahier des charges 
+________________________
+TODO : - Renvoyer : Position finale réelle.
+
+       - Envoyer régulièrement la puissance des moteurs avec tension du diviseur de tension
+         et capteurs de courant.
+       - Mettre un watchdog pour les délais de réception.
+
+Tout est en position absolue par rapport à (0,0).
+
+Header : Série de caractère qui définissent que le message vient du Pi
+Type d'action : mvt linéaire, mvt circulaire, Dwell (Attente), Set Home (recalibration) : Delete les variables volatiles de ticks.
+Déplacement X (tick)
+Déplacement Y (tick)
+Déplacement Z (tick)
+Vitesse X (tick/s)
+Vitesse Y (tick/s)
+Vitesse Z (tick/s)
+
+Centre du cercle (position absolue)
+Point final de l'arc (position absolue)
+Sens (CW ou CCW)
+
+_______________________
+
+Protocole proposé
+_____________________________________________________
+#Byte   | Data	         | Description
+_____________________________________________________
+1, 2	| 0x7B, 0x7D`	 | Header #1 and Header #2. Le header sert à deux choses. 1) Synchroniser l'information. 2) Ajouter d'autres modules sur le port avec header différents.
+_____________________________________________________
+3	| 0, 1, 2, 3     | Action : Dwell, Linear, Circular, SetHome
+_____________________________________________________
+4, 5	| 16 bits        | Mouvement en X
+_____________________________________________________
+6, 7	| 16 bits        | Mouvement en Y
+_____________________________________________________
+8, 9	| 16 bits        | Mouvement en Z
+_____________________________________________________
+10, 11	| 16 bits        | Speed X
+_____________________________________________________
+12, 13	| 16 bits        | Speed Y
+_____________________________________________________
+14, 15	| 16 bits        | Speed Z
+_____________________________________________________
+16, 17	| 16 bits        | Rayon du cercle
+_____________________________________________________
+18, 19	| 16 bits        | Vitesse angulaire
+_____________________________________________________
+20, 21	| 16 bits        | Angle de départ
+_____________________________________________________
+22, 23	| 16 bits        | Angle de fin
+_____________________________________________________
+24	| 8 bit          | Sens de rotation arc
+_____________________________________________________
+25	| 0x2A           | Caractère de fin
+_____________________________________________________
+
+_______________
+Configuration
+_______________
+
+1) Télécharger terminal Hercule (http://www.hw-group.com/products/hercules/index_en.html)
+2) Choisir la "tab" Serial en haut.
+3) Cocher la case DTR
+4) Baud Rate : 115200 (ou autre)
+5) Les autres paramètres par défauts sont corrects.
+6) Pour envoyer messages en HEX, simplement cocher la case HEX à côté du message ...!
+
+
+________________
+Exemples
+________________
+
+=> 2 octets pour Header + 22 octets de données + 1 octet de fin
+
+_________________________________
+Dwell
+_________________________________
+Char : {}<NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL>*
+Hex :  7B 7D 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 2A
+_________________________________
+Linear
+_________________________________
+Hex :  7B 7D 01 0064 0032 0000 0000 0000 0000 0000 0000 0000 0000 00 2A
+
+_________________________________
+Circular
+_________________________________
+Hex :  7B 7D 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 2A
+Hex :  7B 7D 02 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 2A 
+
+_________________________________
+
+
+
